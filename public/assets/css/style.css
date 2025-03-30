@@ -1,0 +1,29 @@
+tr.resaltado td {
+  background-color: #A6F1E0; /* Fondo amarillo claro */
+  font-weight: bold; /* Texto en negrita */
+ /*border: 2px solid #ffcc00; /* Borde amarillo */
+}
+/* En Gris para deshabilitado Fonasa */
+.disable-input {
+  background-color: #e9ecef; /* Gris claro */
+  color: #6c757d; /* Gris oscuro */
+  cursor: not-allowed; /* Cambiar el cursor */
+}
+/* En tu archivo style.css */
+#alertContainer {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 350px;
+  z-index: 1100;
+}
+
+#alertContainer .alert {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#alertContainer .alert.show {
+  opacity: 1;
+}

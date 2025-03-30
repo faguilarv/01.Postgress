@@ -1,0 +1,17 @@
+{
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.root": "./public",
+  "liveServer.settings.file": "index.html",
+  "liveServer.settings.host": "localhost",
+  "liveServer.settings.wait": 100,
+  "liveServer.settings.mount": [
+    ["/shared", "./shared"],
+    ["/assets", "./public/assets"]
+  ],
+  "liveServer.settings.ignoreFiles": [
+    "**/.vscode/**",
+    "**/.git/**",
+    "**/node_modules/**"
+  ],
+  "liveServer.settings.noBrowser": false
+}

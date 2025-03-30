@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agendar Cita</title>
+    <!-- Incluir Moment.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <!-- Fontawesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Consulta Médica</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/paciente.html">Datos del Paciente</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/agendacita.html"
+                >Agendar Hora</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- Fin Navbar -->
+    <div
+      id="alertContainer"
+      class="container fixed-top mt-5"
+      style="z-index: 1080"
+    ></div>
+    <!-- Contenido principal -->
+    <div class="container mt-4">
+      <h1>Agendar Cita Médica</h1>
+
+      <!-- Botón para abrir el modal de agendar cita -->
+      <button
+        type="button"
+        class="btn btn-primary mb-4"
+        data-bs-toggle="modal"
+        data-bs-target="#modalAgendarCita"
+      >
+        Agendar Nueva Cita
+      </button>
+
+      <!-- Tabla para mostrar citas agendadas -->
+      <h2 class="mt-5">Citas Agendadas</h2>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">RUT Paciente</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Hora</th>
+            <th scope="col">Folio</th>
+            <th scope="col">Previsión</th>
+            <th scope="col">Motivo</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaCitas">
+          <!-- Las filas se agregarán dinámicamente aquí -->
+        </tbody>
+      </table>
+    </div>
+    <!-- Fin Contenido principal -->
+
+    <!-- Modal para agendar cita -->
+    <div
+      class="modal fade"
+      id="modalAgendarCita"
+      tabindex="-1"
+      aria-labelledby="modalAgendarCitaLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAgendarCitaLabel">
+              Agendar Nueva Cita
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Formulario para agendar cita -->
+            <form id="formAgendarCita">
+              <div class="mb-3">
+                <label for="rutPaciente" class="form-label"
+                  >RUT del Paciente</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="rutPaciente"
+                  placeholder="Ingrese el RUT del paciente"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="fechaCita" class="form-label"
+                  >Fecha de la Cita</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="fechaCita"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="horaCita" class="form-label">Hora de la Cita</label>
+                <input
+                  type="time"
+                  class="form-control"
+                  id="horaCita"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="prevision" class="form-label">Previsión</label>
+                <select class="form-select" id="prevision" required>
+                  <option value="Fonasa">Fonasa</option>
+                  <option value="Particular">Particular</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="folioFonasa" class="form-label">Folio Fonasa</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="folioFonasa"
+                  placeholder="Ingrese Número Folio Fonasa"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="motivoCita" class="form-label"
+                  >Motivo de la Cita</label
+                >
+                <textarea
+                  class="form-control"
+                  id="motivoCita"
+                  rows="3"
+                  placeholder="Describa el motivo de la cita"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Agendar Cita
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Fin Modal para agendar cita -->
+
+    <!-- Modal para editar cita -->
+    <div
+      class="modal fade"
+      id="modalEditarCita"
+      tabindex="-1"
+      aria-labelledby="modalEditarCitaLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarCitaLabel">Editar Cita</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Formulario para editar cita -->
+            <form id="formEditarCita">
+              <input type="hidden" id="idEditar" />
+              <div class="mb-3">
+                <label for="rutPacienteEditar" class="form-label"
+                  >RUT del Paciente</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="rutPacienteEditar"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="fechaCitaEditar" class="form-label"
+                  >Fecha de la Cita</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="fechaCitaEditar"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="horaCitaEditar" class="form-label"
+                  >Hora de la Cita</label
+                >
+                <input
+                  type="time"
+                  class="form-control"
+                  id="horaCitaEditar"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="previsionEditar" class="form-label"
+                  >Previsión</label
+                >
+                <select class="form-select" id="previsionEditar" required>
+                  <option value="Fonasa">Fonasa</option>
+                  <option value="Particular">Particular</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="folioFonasaEditar" class="form-label"
+                  >Folio Fonasa</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="folioFonasaEditar"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="motivoCitaEditar" class="form-label"
+                  >Motivo de la Cita</label
+                >
+                <textarea
+                  class="form-control"
+                  id="motivoCitaEditar"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Guardar Cambios
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Fin Modal para editar cita -->
+
+    <!-- Scripts -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.8/axios.min.js"
+      integrity="sha512-v8+bPcpk4Sj7CKB11+gK/FnsbgQ15jTwZamnBf/xDmiQDcgOIYufBo6Acu1y30vrk8gg5su4x0CG3zfPaq5Fcg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" src="/assets/js/agendacita.js"></script>
+  </body>
+</html>

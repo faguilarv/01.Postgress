@@ -30,6 +30,39 @@ class CitaManager {
     document
       .getElementById("formEditarCita")
       ?.addEventListener("submit", (e) => this.guardarCambiosCita(e));
+
+    // Nuevos manejadores para la búsqueda avanzada
+    document
+      .getElementById("formBuscarCitas")
+      ?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.buscarCitasAvanzadas();
+      });
+
+    document
+      .getElementById("btnResetBusqueda")
+      ?.addEventListener("click", () => {
+        this.resetearBusqueda();
+      });
+
+    document.getElementById("btnLimpiarRut")?.addEventListener("click", () => {
+      const rutInput = document.getElementById("rutBusqueda");
+      if (rutInput) {
+        rutInput.value = "";
+        delete rutInput.dataset.cleanRut;
+      }
+    });
+
+    // Validación automática de RUT - MODIFICADO
+    document.getElementById("rutBusqueda")?.addEventListener("input", (e) => {
+      // Limpia el RUT antes de formatear para evitar problemas
+      const cleanValue = limpiarRut(e.target.value);
+      if (cleanValue) {
+        e.target.value = formatearRUT(cleanValue);
+        // Guarda el RUT limpio en un atributo data para usarlo en la búsqueda
+        e.target.dataset.cleanRut = cleanValue;
+      }
+    });
   }
 
   cargarRutPaciente() {
@@ -46,8 +79,19 @@ class CitaManager {
 
   async obtenerCitas() {
     try {
-      const response = await axios.get(`${this.URL_DOMAIN}/api/citas`);
-      const citas = response.data;
+      const response = await axios.get(`${this.URL_DOMAIN}/api/citas`, {
+        params: { orden: "asc" },
+      });
+      let citas = response.data;
+
+      // Ordenar citas por fecha (de más antigua a más nueva)
+      if (!response.config.params?.orden) {
+        citas.sort((a, b) => {
+          const fechaHoraA = new Date(`${a.fecha}T${a.hora}`);
+          const fechaHoraB = new Date(`${b.fecha}T${b.hora}`);
+          return fechaHoraA - fechaHoraB;
+        });
+      }
 
       this.tablaCitas.innerHTML = "";
 
@@ -102,6 +146,179 @@ class CitaManager {
       console.error("Error al obtener citas:", error);
       this.mostrarAlerta("Error al cargar citas", "danger");
     }
+  }
+
+  // Método de búsqueda avanzada
+  async buscarCitasAvanzadas() {
+    const rutInput = document.getElementById("rutBusqueda");
+    const fechaInicio = document.getElementById("fechaInicio").value;
+    const fechaFin = document.getElementById("fechaFin").value;
+
+    // Validación básica
+    if (!fechaInicio || !fechaFin) {
+      this.mostrarAlerta("Debe seleccionar un rango de fechas", "warning");
+      return;
+    }
+
+    // Validar que fechaInicio no sea mayor que fechaFin
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+      this.mostrarAlerta(
+        "La fecha de inicio no puede ser mayor que la fecha fin",
+        "warning"
+      );
+      return;
+    }
+
+    try {
+      // Mostrar indicador de carga
+      this.tablaCitas.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Buscando citas...</span>
+            </div>
+            <p class="mt-2">Buscando citas...</p>
+          </td>
+        </tr>
+      `;
+
+      let url;
+      const params = {
+        fechaInicio,
+        fechaFin,
+        orden: "asc", // Ordenar por fecha ascendente
+      };
+
+      const rutLimpio = rutInput?.dataset.cleanRut;
+      if (rutLimpio && validarRUT(rutLimpio)) {
+        url = `${this.URL_DOMAIN}/api/citas/rut/${rutLimpio}`;
+      } else {
+        url = `${this.URL_DOMAIN}/api/citas`;
+      }
+
+      const response = await axios.get(url, { params });
+      this.mostrarResultadosBusqueda(response.data);
+    } catch (error) {
+      console.error("Error en búsqueda avanzada:", error);
+      let errorMessage = "Error al realizar la búsqueda";
+
+      if (error.response) {
+        if (error.response.status === 404) {
+          errorMessage =
+            "No se encontraron citas con los criterios especificados";
+        } else if (error.response.data?.error) {
+          errorMessage = error.response.data.error;
+        }
+      }
+
+      this.mostrarAlerta(errorMessage, "danger");
+      this.obtenerCitas(); // Volver a cargar todas las citas
+    }
+  }
+
+  // Método para mostrar resultados de búsqueda
+  mostrarResultadosBusqueda(citas) {
+    this.tablaCitas.innerHTML = "";
+
+    if (!citas || citas.length === 0) {
+      this.tablaCitas.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">
+            <i class="fas fa-search fa-2x mb-2"></i>
+            <p>No se encontraron citas con los criterios de búsqueda</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    // Ordenar por fecha y hora (ascendente = más antigua a más nueva)
+    citas.sort((a, b) => {
+      const fechaHoraA = new Date(`${a.fecha}T${a.hora}`);
+      const fechaHoraB = new Date(`${b.fecha}T${b.hora}`);
+      return fechaHoraA - fechaHoraB;
+    });
+
+    // Obtener el RUT buscado (en formato limpio)
+    const rutInput = document.getElementById("rutBusqueda");
+    const rutBuscado = rutInput?.dataset.cleanRut || "";
+
+    citas.forEach((cita) => {
+      const fila = document.createElement("tr");
+      // Determinar si debemos resaltar esta fila (coincide con RUT buscado)
+      const debeResaltar = rutBuscado && cita.paciente_rut === rutBuscado;
+
+      fila.innerHTML = `
+        <td>${cita.id}</td>
+        <td>${cita.paciente_rut ? formatearRUT(cita.paciente_rut) : "N/A"}</td>
+        <td>${new Date(cita.fecha).toLocaleDateString("es-CL")}</td>
+        <td>${cita.hora}</td>
+        <td class="${debeResaltar ? "fw-bold text-primary" : ""}">${
+        cita.foliofonasa || "-"
+      }</td>
+        <td>${cita.prevision}</td>
+        <td>${cita.motivo}</td>
+        <td class="text-nowrap">
+            <button class="btn btn-warning btn-sm editar-btn me-1" data-id="${
+              cita.id
+            }">
+            <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-danger btn-sm eliminar-btn" data-id="${
+              cita.id
+            }">
+            <i class="fas fa-trash"></i>
+            </button>
+        </td>
+        `;
+
+      this.tablaCitas.appendChild(fila);
+    });
+
+    // Agregar eventos a los botones de editar/eliminar
+    document.querySelectorAll(".editar-btn").forEach((btn) => {
+      btn.addEventListener("click", () => this.editarCita(btn.dataset.id));
+    });
+
+    document.querySelectorAll(".eliminar-btn").forEach((btn) => {
+      btn.addEventListener("click", () => this.eliminarCita(btn.dataset.id));
+    });
+  }
+
+  // Método buscarCitasPorRutYFecha
+  async buscarCitasPorRutYFecha(rut, fechaInicio, fechaFin) {
+    try {
+      let url;
+      if (rut === "all") {
+        url = `${this.URL_DOMAIN}/api/citas`;
+      } else {
+        url = `${this.URL_DOMAIN}/api/citas/rut/${rut}`;
+      }
+
+      const response = await axios.get(url, {
+        params: {
+          fechaInicio,
+          fechaFin,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Error al buscar citas:", error);
+      throw error; // Propagar el error para manejo superior
+    }
+  }
+
+  // Método resetearBusqueda
+  resetearBusqueda() {
+    const rutInput = document.getElementById("rutBusqueda");
+    if (rutInput) {
+      rutInput.value = "";
+      delete rutInput.dataset.cleanRut;
+    }
+    document.getElementById("fechaInicio").value = "";
+    document.getElementById("fechaFin").value = "";
+    this.obtenerCitas();
   }
 
   async agendarCita(event) {

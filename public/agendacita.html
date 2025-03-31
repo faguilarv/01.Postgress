@@ -73,7 +73,92 @@
       >
         Agendar Nueva Cita
       </button>
+      <!-- Agrega esto en tu agendacita.html, antes de la tabla de citas -->
+      <div class="container mt-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-search me-2"></i>Búsqueda de Folios por Fecha y
+              RUT
+            </h5>
+          </div>
+          <div class="card-body">
+            <form id="formBuscarCitas">
+              <div class="row g-3">
+                <!-- Campo RUT -->
+                <div class="col-md-4">
+                  <label for="rutBusqueda" class="form-label"
+                    >RUT del Paciente</label
+                  >
+                  <div class="input-group">
+                    <!--Aqui va el input del rut para buscrar los folios por rut-->
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="rutBusqueda"
+                      placeholder="12.345.678-9"
+                      title="Ingrese RUT en formato 12.345.678-9 o 12345678-9"
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      id="btnLimpiarRut"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
 
+                <!-- Rango de fechas -->
+                <div class="col-md-4">
+                  <label for="fechaInicio" class="form-label"
+                    >Fecha Inicio</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="fechaInicio"
+                    max="{{ current_date }}"
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="fechaFin" class="form-label">Fecha Fin</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="fechaFin"
+                    max="{{ current_date }}"
+                  />
+                </div>
+
+                <!-- Botones -->
+                <div class="col-12">
+                  <div class="d-flex justify-content-end gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      id="btnResetBusqueda"
+                    >
+                      <i class="fas fa-undo me-2"></i>Limpiar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-search me-2"></i>Buscar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Aquí continúa tu tabla existente de citas -->
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <!-- ... tu tabla actual ... -->
+          </table>
+        </div>
+      </div>
       <!-- Tabla para mostrar citas agendadas -->
       <h2 class="mt-5">Citas Agendadas</h2>
       <table class="table table-striped table-hover">

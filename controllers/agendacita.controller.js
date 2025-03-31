@@ -191,3 +191,38 @@ export const eliminarById = async (id) => {
     return rows[0];
   });
 };
+// Función para obtener citas por RUT y rango de fechas
+// Reemplazar la función existente por esta:
+export const getCitasByRutAndDateRange = async (req, res) => {
+  try {
+    const { rut } = req.params;
+    const { fechaInicio, fechaFin } = req.query;
+
+    if (!rut || !fechaInicio || !fechaFin) {
+      return res.status(400).json({
+        error: "Se requieren RUT, fechaInicio y fechaFin",
+      });
+    }
+
+    const rutLimpio = limpiarRut(rut);
+    if (!validarRUT(rutLimpio)) {
+      return res.status(400).json({
+        error: "Formato de RUT inválido",
+      });
+    }
+
+    const citas = await Agendacita.getCitasByRutAndDateRange(
+      rutLimpio,
+      fechaInicio,
+      fechaFin
+    );
+
+    return res.json(citas);
+  } catch (error) {
+    console.error("Error en getCitasByRutAndDateRange:", error);
+    return res.status(500).json({
+      error: "Error interno del servidor",
+      details: error.message,
+    });
+  }
+};

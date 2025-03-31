@@ -1,5 +1,6 @@
 import { Router } from "express";
 import agendacitaModel from "../model/agendacita.model.js"; // Importa el modelo correctamente
+import { getCitasByRutAndDateRange } from "../controllers/agendacita.controller.js"; // Asegúrate de que esta función esté implementada"
 
 const router = Router();
 
@@ -14,6 +15,10 @@ router.post("/", async (req, res) => {
       details: "Verifica los datos de la cita",
     });
   }
+});
+// Ruta para obtener citas por RUT y rango de fechas (GET /api/citas/rut/:rut)
+router.get("/rut/:rut", (req, res) => {
+  getCitasByRutAndDateRange(req, res);
 });
 
 // Ruta para obtener citas por RUT de paciente (GET /api/citas/paciente/:rut)

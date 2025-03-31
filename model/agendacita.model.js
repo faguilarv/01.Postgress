@@ -168,7 +168,44 @@ const eliminarCitaById = async (id) => {
     throw error;
   }
 };
+// Función para obtener citas por RUT y rango de fechas
+const getCitasByRutAndDateRange = async (rut, fechaInicio, fechaFin) => {
+  try {
+    console.log("Buscando citas para:", { rut, fechaInicio, fechaFin }); // Log para depuración
 
+    // Validar fechas
+    if (!fechaInicio || !fechaFin) {
+      throw new Error("Se requieren ambas fechas (inicio y fin)");
+    }
+
+    const query = {
+      text: `
+        SELECT 
+          a.id,
+          a.fecha,
+          a.hora,
+          a.foliofonasa,
+          a.prevision,
+          a.motivo,
+          p.rut AS paciente_rut
+        FROM agendacitas a
+        JOIN datapacientes p ON a.paciente_id = p.uid
+        WHERE p.rut = $1
+        AND a.fecha BETWEEN $2 AND $3
+        ORDER BY a.fecha ${orden === "desc" ? "DESC" : "ASC"}, a.hora ${
+        orden === "desc" ? "DESC" : "ASC"
+      }
+      `,
+      values: [rut, fechaInicio, fechaFin],
+    };
+
+    const { rows } = await pool.query(query);
+    return rows;
+  } catch (error) {
+    console.error(`Error en getCitasByRutAndDateRange:`, error);
+    throw error;
+  }
+};
 // Exportamos las funciones
 export default {
   findAll,
@@ -178,4 +215,5 @@ export default {
   createCita,
   updateCita,
   eliminarCitaById,
+  getCitasByRutAndDateRange,
 };

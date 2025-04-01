@@ -246,8 +246,8 @@ class CitaManager {
     citas.forEach((cita) => {
       const fila = document.createElement("tr");
       // Determinar si debemos resaltar esta fila (coincide con RUT buscado)
-      const debeResaltar = rutBuscado && cita.paciente_rut === rutBuscado;
-
+      const debeResaltar =
+        rutBuscado && cita.paciente_rut === rutBuscado && cita.foliofonasa;
       fila.innerHTML = `
         <td>${cita.id}</td>
         <td>${cita.paciente_rut ? formatearRUT(cita.paciente_rut) : "N/A"}</td>

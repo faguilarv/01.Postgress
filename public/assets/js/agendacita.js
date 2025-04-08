@@ -248,15 +248,16 @@ class CitaManager {
       // Determinar si debemos resaltar esta fila (coincide con RUT buscado)
       const debeResaltar =
         rutBuscado && cita.paciente_rut === rutBuscado && cita.foliofonasa;
+
       fila.innerHTML = `
         <td>${cita.id}</td>
         <td>${cita.paciente_rut ? formatearRUT(cita.paciente_rut) : "N/A"}</td>
         <td>${new Date(cita.fecha).toLocaleDateString("es-CL")}</td>
         <td>${cita.hora}</td>
-        <td class="${debeResaltar ? "fw-bold text-primary" : ""}">${
+        <td class="${debeResaltar ? "fw-bold text-danger" : ""}">${
         cita.foliofonasa || "-"
       }</td>
-        <td>${cita.prevision}</td>
+      <td>${cita.prevision}</td>
         <td>${cita.motivo}</td>
         <td class="text-nowrap">
             <button class="btn btn-warning btn-sm editar-btn me-1" data-id="${
